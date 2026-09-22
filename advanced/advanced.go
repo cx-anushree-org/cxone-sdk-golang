@@ -54,6 +54,7 @@ import (
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/transport"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/models"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/pagination"
+	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/aiscresults"
 )
 
 // Handle bundles the dependencies the endpoint packages need: the request
@@ -183,6 +184,9 @@ func (h *Handle) SCM() *SCM { return &SCM{h: h} }
 // PresetManager returns a typed handle to the preset-manager endpoints for
 // SAST/IAC preset CRUD and query-family browsing.
 func (h *Handle) PresetManager() *PresetManager { return &PresetManager{h: h} }
+
+// AISCResults returns a typed handle to the AI Supply Chain results endpoints.
+func (h *Handle) AISCResults() *AISCResults { return &AISCResults{h: h} }
 
 // ----- Projects --------------------------------------------------------------
 
@@ -1014,4 +1018,13 @@ func (a *Access) ListAMRoles(ctx context.Context) ([]models.AMRole, error) {
 
 func (p *Projects) MoveApplications(ctx context.Context, projectID string, fromAppIDs, toAppIDs []string) error {
 	return projects.MoveApplications(ctx, p.h.executor, p.h.rootURL, projectID, fromAppIDs, toAppIDs)
+}
+
+// ----- AISCResults -------------------------------------------------------------------
+
+// AISCResults wraps the AI supply chain (AISC) results endpoints.
+type AISCResults struct{ h *Handle }
+
+func (a *AISCResults) List(ctx context.Context, scanID string, query url.Values) (*models.AISCResultsCollection, error) {
+	return aiscresults.List(ctx, a.h.executor, a.h.rootURL, scanID, query)
 }
