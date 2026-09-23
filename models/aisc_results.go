@@ -28,3 +28,22 @@ type AISCResult struct {
 	EndLine                 int    `json:"endLine,omitempty"`
 	EndColumn               int    `json:"endColumn,omitempty"`
 }
+
+// AISCAggregateResponse is the response of
+// GET /api/ai-sc/reader/scans/{scanId}/results/aggregate - grouped counts
+// of AI supply chain findings for a single scan.
+type AISCAggregateResponse struct {
+	ScanGroupsCounter []*AISCGroupCounter `json:"scanGroupsCounter"`
+}
+
+// AISCGroupCounter is one grouped count entry. Only the fields relevant to
+// the requested groupBy are populated
+type AISCGroupCounter struct {
+	AssetTypeID string `json:"assetTypeId,omitempty"`
+	AssetType   string `json:"assetType,omitempty"`
+	AssetName   string `json:"assetName,omitempty"`
+	Provider    string `json:"provider,omitempty"`
+	Version     string `json:"version,omitempty"`
+	State       string `json:"state,omitempty"`
+	Count       int    `json:"count"`
+}

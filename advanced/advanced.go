@@ -25,6 +25,7 @@ import (
 	"net/url"
 
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/access"
+	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/aiscresults"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/analytics"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/applications"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/audit"
@@ -40,13 +41,13 @@ import (
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/presetmanager"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/projects"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/reports"
-	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/roles"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/results"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/risks"
+	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/roles"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/sastmetadata"
-	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/scm"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/scanoverview"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/scans"
+	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/scm"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/telemetry"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/tenant"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/uploads"
@@ -54,7 +55,6 @@ import (
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/transport"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/models"
 	"github.com/checkmarx-open-labs/cxone-sdk-golang/pagination"
-	"github.com/checkmarx-open-labs/cxone-sdk-golang/internal/endpoints/aiscresults"
 )
 
 // Handle bundles the dependencies the endpoint packages need: the request
@@ -1027,4 +1027,8 @@ type AISCResults struct{ h *Handle }
 
 func (a *AISCResults) List(ctx context.Context, scanID string, query url.Values) (*models.AISCResultsCollection, error) {
 	return aiscresults.List(ctx, a.h.executor, a.h.rootURL, scanID, query)
+}
+
+func (a *AISCResults) Aggregate(ctx context.Context, scanID, groupBy string, query url.Values) (*models.AISCAggregateResponse, error) {
+	return aiscresults.Aggregate(ctx, a.h.executor, a.h.rootURL, scanID, groupBy, query)
 }

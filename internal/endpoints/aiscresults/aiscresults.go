@@ -30,3 +30,27 @@ func List(ctx context.Context, e *transport.Executor, baseURL, scanID string, qu
 	}
 	return &out, nil
 }
+
+// Aggregate returns grouped counts of AI supply chain findings for the given scan.
+// GET /api/ai-sc/reader/scans/{scanId}/results/aggregate → 200.
+func Aggregate(ctx context.Context, e *transport.Executor, baseURL, scanID, groupBy string, query url.Values) (*models.AISCAggregateResponse, error) {
+	if scanID == "" {
+		return nil, &cxerrors.ConfigurationError{Field: "scanID", Reason: "must not be empty"}
+	}
+	if groupBy == "" {
+		return nil, &cxerrors.ConfigurationError{Field: "groupBy", Reason: "must not be empty"}
+	}
+	q := query
+	if q == nil {
+		q = url.Values{}
+	}
+	q.Set("groupBy", groupBy)
+
+	var out models.AISCAggregateResponse
+	if err := transport.DoJSON(ctx, e, http.MethodGet,
+		transport.JoinURL(baseURL, ScansPath+"/"+scanID+"/results/aggregate"),
+		q, nil, []int{http.StatusOK}, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
