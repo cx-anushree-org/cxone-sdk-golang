@@ -166,3 +166,70 @@ func TestAdvancedSCMDisconnectEndToEnd(t *testing.T) {
 		t.Errorf("Authorization = %q", gotAuth)
 	}
 }
+
+func TestAdvancedAISCResultsListEndToEnd(t *testing.T) {
+	c := newClientAgainst(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/ai-sc/reader/scans/scan-123/results" {
+			t.Errorf("path = %q", r.URL.Path)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = io.WriteString(w, `{
+			"data": [
+				{
+					"id": "",
+					"evidenceKey": "vulnerable_AI.py:11",
+					"assetType": "AI SDK",
+					"assetTypeId": "3b0bf814-e2ef-4603-b456-fa08c0b2e7eb",
+					"assetId": "##anthropic##anthropic-python-sdk",
+					"assetName": "Anthropic Python SDK",
+					"provider": "Anthropic",
+					"assetFirstDetectionDate": "2026-07-15T04:38:22Z",
+					"path": "vulnerable_AI.py",
+					"startLine": 11,
+					"startColumn": 19,
+					"endLine": 17,
+					"endColumn": 46
+				}
+			],
+			"total": 1,
+			"currentPage": 1,
+			"lastPage": 1
+		}`)
+	})
+	out, err := c.Advanced().AISCResults().List(context.Background(), "scan-123", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(out.Data) != 1 || out.Data[0].AssetName != "Anthropic Python SDK" {
+		t.Errorf("got %+v", out)
+	}
+}
+
+func TestAdvancedAISCResultsAggregateEndToEnd(t *testing.T) {
+	c := newClientAgainst(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/ai-sc/reader/scans/scan-123/results/aggregate" {
+			t.Errorf("path = %q", r.URL.Path)
+		}
+		if r.URL.Query().Get("groupBy") != "assetType,provider" {
+			t.Errorf("groupBy = %q", r.URL.Query().Get("groupBy"))
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = io.WriteString(w, `{
+			"scanGroupsCounter": [
+				{
+					"assetTypeId": "2295665d-84ed-46d3-aecf-e57aa286bf13",
+					"assetType": "AI Model",
+					"provider": "OpenAI",
+					"count": 3
+				}
+			]
+		}`)
+	})
+	out, err := c.Advanced().AISCResults().Aggregate(context.Background(), "scan-123", "assetType,provider", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(out.ScanGroupsCounter) != 1 || out.ScanGroupsCounter[0].Provider != "OpenAI" {
+		t.Errorf("got %+v", out)
+	}
+}
